@@ -30,11 +30,20 @@ productsRouter.get("/", async (req, res, next) => {
   }
 })
 
+productsRouter.get("/:id/reviews", async (req, res, next) => {
+  try {
+    const productReviews = await ProductModel.findProductWithReviews(req.params.id)
+    res.send({ productReviews })
+  } catch (error) {
+    next(error)
+  }
+})
+
 productsRouter.get("/:id", async (req, res, next) => {
   try {
     const id = req.params.id
-    const product = await ProductModel.findReviewsForProduct(id)
-    res.send(product)
+    const product = await ProductModel.findProductWithReviews(id)
+    res.send({product})
   } catch (error) {
     next(error)
   }
@@ -58,7 +67,7 @@ productsRouter.post("/:id/upload", upload.single("product"), async (req, res, ne
     await fs.writeFile(path.join(imagePath, `${req.params.id}.png`), req.file.buffer)
     
     req.body = {
-      imageUrl: `http://127.0.0.1:${port}/img/products/${req.params.id}.png`
+      imageUrl: `http://127.0.0.1:${port}/image/products/${req.params.id}.png`
     }
     const product = await ProductModel.findByIdAndUpdate(req.params.id, req.body)
     if (product) {
