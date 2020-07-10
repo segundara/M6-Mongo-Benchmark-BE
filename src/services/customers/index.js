@@ -79,19 +79,15 @@ customersRouter.delete("/:id", async (req, res, next) => {
 
 customersRouter.post("/:id/add-to-cart/:productId", async (req, res, next) => {
   try {
-    //1. Find the product by ID
     const product = await ProductModel.findProductWithReviews(req.params.productId)
     if (product) {
       const newProduct = { ...product.toObject(), quantity: 1 }
-      //2. Check in customer's cart if the product is already there
 
       const isProductThere = await CustomerModel.findProductInCart(
         req.params.id,
         req.params.productId
       )
       if (isProductThere) {
-        // the product is already in the cart
-        //3. Increment the quantity
         await CustomerModel.incrementCartQuantity(
           req.params.id,
           req.params.productId,
@@ -99,7 +95,6 @@ customersRouter.post("/:id/add-to-cart/:productId", async (req, res, next) => {
         )
         res.send("Quantity incremented")
       } else {
-        // the product is not in the cart
         await CustomerModel.addProductToCart(req.params.id, newProduct)
         res.send("New product added!")
       }
